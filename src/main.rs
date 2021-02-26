@@ -181,7 +181,7 @@ fn main() -> Result<()> {
         };
     }
     for user in user_data.values() {
-        if user.message_count > args.notable_burrito_count && user.name != "GroupMe".to_string() {
+        if user.message_with_image_count > args.notable_burrito_count && user.name != "GroupMe".to_string() {
             println!("{:#?}", user);
         }
     }
