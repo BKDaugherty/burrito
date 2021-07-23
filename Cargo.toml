@@ -13,3 +13,4 @@ serde = "*"
 serde_json = "*"
 structopt = { version = "0.3", default-features = false }
 dotenv = "0.15"
+prettytable-rs = "^0.8"

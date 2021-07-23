@@ -3,6 +3,8 @@ extern crate serde;
 extern crate serde_json;
 use anyhow::Result;
 use dotenv::dotenv;
+use prettytable::format::consts::FORMAT_CLEAN;
+use prettytable::{Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use structopt::StructOpt;
@@ -142,6 +144,32 @@ fn add_to_user_map(
     return (end_at, user_map);
 }
 
+fn display_user_data_table(user_data: HashMap<UserId, UserData>, args: Args) {
+    let mut table = Table::new();
+    table.set_format(*FORMAT_CLEAN);
+    let headers = vec!["name", "messages_sent", "images_sent", "number_of_likes"];
+    table.add_row(Row::new(
+        headers
+            .into_iter()
+            .map(|field| Cell::new(&field.to_string()))
+            .collect(),
+    ));
+    for user in user_data.values() {
+        if user.message_with_image_count > args.notable_burrito_count
+            && user.name != "GroupMe".to_string()
+        {
+            // TODO - this really should be some form of enum
+            let mut row = Vec::new();
+            row.push(Cell::new(&user.name.to_string()));
+            row.push(Cell::new(&user.message_count.to_string()));
+            row.push(Cell::new(&user.message_with_image_count.to_string()));
+            row.push(Cell::new(&user.number_of_likes.to_string()));
+            table.add_row(Row::new(row));
+        }
+    }
+    table.printstd();
+}
+
 fn main() -> Result<()> {
     match dotenv() {
         Err(_) => {
@@ -171,7 +199,7 @@ fn main() -> Result<()> {
                 }
                 None => {
                     status_code = 305;
-                   //  println!("{:#?}", body);
+                    //  println!("{:#?}", body);
                 }
             },
             Err(_e) => {
@@ -180,10 +208,6 @@ fn main() -> Result<()> {
             }
         };
     }
-    for user in user_data.values() {
-        if user.message_with_image_count > args.notable_burrito_count && user.name != "GroupMe".to_string() {
-            println!("{:#?}", user);
-        }
-    }
+    display_user_data_table(user_data, args);
     Ok(())
 }
